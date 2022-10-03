@@ -48,7 +48,7 @@ RMAC_ADDR=4437e6a6893b
 #Example: 'PERIPHERALS ?=UART[1,\"textparam\"] UART UART' will create 3 UART instances, 
 #         the first one will be instantiated with verilog parameters 1 and "textparam", 
 #         the second and third will use default parameters.
-PERIPHERALS ?=UART TIMER ETHERNET
+PERIPHERALS ?=UART TIMER ETHERNET VERSAT
 
 #RISC-V HARD MULTIPLIER AND DIVIDER INSTRUCTIONS
 USE_MUL_DIV ?=1
@@ -57,7 +57,7 @@ USE_MUL_DIV ?=1
 USE_COMPRESSED ?=1
 
 #ROOT DIRECTORY ON REMOTE MACHINES
-REMOTE_ROOT_DIR ?=sandbox/iob-soc-sha
+REMOTE_ROOT_DIR ?=sandbox/iob-soc-opencryptohw
 
 #SIMULATION
 #default simulator running locally or remotely
@@ -95,6 +95,7 @@ CACHE_DIR=$(ROOT_DIR)/submodules/CACHE
 UART_DIR=$(ROOT_DIR)/submodules/UART
 TIMER_DIR=$(ROOT_DIR)/submodules/TIMER
 ETHERNET_DIR=$(ROOT_DIR)/submodules/ETHERNET
+VERSAT_DIR=$(ROOT_DIR)/submodules/VERSAT
 LIB_DIR=$(ROOT_DIR)/submodules/LIB
 MEM_DIR=$(ROOT_DIR)/submodules/MEM
 AXI_DIR=$(ROOT_DIR)/submodules/AXI

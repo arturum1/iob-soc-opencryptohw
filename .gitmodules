@@ -25,3 +25,6 @@
 [submodule "submodules/TESTER"]
 	path = submodules/TESTER
 	url = git@github.com:IObundle/iob-soc-tester.git
+[submodule "submodules/VERSAT"]
+	path = submodules/VERSAT
+	url = git@github.com:IObundle/iob-versat.git
