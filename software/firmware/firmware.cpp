@@ -100,18 +100,18 @@ int main(int argc, const char* argv[])
   char *dout_fp = NULL;
 
   //init uart
-  uart_init(UART_BASE,FREQ/BAUD);   
+  uart_init(UART0_BASE,FREQ/BAUD);   
 
   //init timer
-  timer_init(TIMER_BASE);
+  timer_init(TIMER0_BASE);
 
   //init ethernet
-  eth_init(ETHERNET_BASE);
+  eth_init(ETHERNET0_BASE);
 
   //instantiate versat 
   Versat versatInst = {};
   Versat* versat = &versatInst;
-  InitVersat(versat,VERSAT_BASE,1); 
+  InitVersat(versat,VERSAT0_BASE,1); 
 
   // Sha specific units
   // Need to RegisterFU, can ignore return value
