@@ -1,10 +1,7 @@
-SHELL = /bin/bash
-export 
+export SHELL = /bin/bash
 
-#run on external memory implies DDR use
-ifeq ($(RUN_EXTMEM),1)
-USE_DDR=1
-endif
+ROOT_DIR:=.
+include ./config.mk
 
 # TESTER PORTMAP
 tester-portmap:
@@ -13,12 +10,6 @@ tester-portmap:
 #
 # BUILD EMBEDDED SOFTWARE
 #
-SW_DIR:=./software
-FIRM_DIR:=$(SW_DIR)/firmware
-
-#default baud and frequency if not given
-BAUD ?=$(SIM_BAUD)
-FREQ ?=$(SIM_FREQ)
 
 fw-build:
 	make -C $(FIRM_DIR) build-all
@@ -33,40 +24,36 @@ fw-debug:
 # EMULATE ON PC
 #
 
-PC_DIR:=$(SW_DIR)/pc-emul
+#default baud and system clock frequency
+SIM_BAUD ?= 2500000
+SIM_FREQ ?=50000000
 pc-emul-build:
-	make fw-build
-	make -C $(PC_DIR)
+	make fw-build BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ)
+	make -C $(PC_DIR) BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ)
 
 pc-emul-run: pc-emul-build
-	make -C $(PC_DIR) run
+	make -C $(PC_DIR) run BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ)
 
 pc-emul-clean: fw-clean
 	make -C $(PC_DIR) clean
 
 pc-emul-test: pc-emul-clean
-	make -C $(PC_DIR) test
+	make -C $(PC_DIR) test BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ)
 
 pc-emul-profile:
-	make fw-build BAUD=5000000 PROFILE=1
-	make -C $(PC_DIR) profile
+	make fw-build BAUD=5000000 FREQ=$(SIM_FREQ) PROFILE=1
+	make -C $(PC_DIR) profile BAUD=5000000 FREQ=$(SIM_FREQ)
 
 pc-emul-output-versat:
-	make -C $(PC_DIR) output-versat OUTPUT_VERSAT_DST=$(OUTPUT_VERSAT_DST)
+	make -C $(PC_DIR) output-versat BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ) OUTPUT_VERSAT_DST=$(OUTPUT_VERSAT_DST)
 
-HW_DIR=./hardware
 #
 # SIMULATE RTL
 #
-#default simulator running locally or remotely
-SIMULATOR ?=icarus
-SIM_DIR=$(HW_DIR)/simulation/$(SIMULATOR)
-#default baud and system clock frequency
-SIM_BAUD = 2500000
-SIM_FREQ =50000000
+
 sim-build:
-	make fw-build SIM=1
-	make -C $(SIM_DIR) build
+	make fw-build BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ) SIM=1
+	make -C $(SIM_DIR) build BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ)
 
 sim-run: sim-build
 	make -C $(SIM_DIR) run
@@ -81,8 +68,8 @@ sim-debug:
 	make -C $(SIM_DIR) debug
 
 sim-versat-fus:
-	make -C $(SIM_DIR) xunitM SIMULATOR=icarus
-	make -C $(SIM_DIR) xunitF SIMULATOR=icarus
+	make -C $(SIM_DIR) xunitM BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ) SIMULATOR=icarus
+	make -C $(SIM_DIR) xunitF BAUD=$(SIM_BAUD) FREQ=$(SIM_FREQ) SIMULATOR=icarus
 
 tester-sim-build:
 	make -C submodules/TESTER sim-build
@@ -96,20 +83,19 @@ tester-sim-test: tester-sim-build
 #
 # BUILD, LOAD AND RUN ON FPGA BOARD
 #
-#default board running locally or remotely
-BOARD ?=CYCLONEV-GT-DK
-BOARD_DIR =$(shell find hardware -name $(BOARD))
+
 #default baud and system clock freq for boards
-BOARD_BAUD = 115200
+BOARD_BAUD ?= 115200
 #default board frequency
-BOARD_FREQ ?=100000000
 ifeq ($(BOARD), CYCLONEV-GT-DK)
-BOARD_FREQ =50000000
+BOARD_FREQ ?=50000000
+else
+BOARD_FREQ ?=100000000
 endif
 
 fpga-build:
 	make fw-build BAUD=$(BOARD_BAUD) FREQ=$(BOARD_FREQ)
-	make -C $(BOARD_DIR) build
+	make -C $(BOARD_DIR) build BAUD=$(BOARD_BAUD) FREQ=$(BOARD_FREQ) SHELL=$(SHELL)
 
 fpga-run: fpga-build
 	make -C $(BOARD_DIR) run TEST_LOG="$(TEST_LOG)"
@@ -141,8 +127,6 @@ tester-fpga-test: tester-fpga-build
 #
 # COMPILE DOCUMENTS
 #
-DOC_DIR=./document
-
 doc-accel-plan:
 	make -C $(DOC_DIR) accel-plan
 
@@ -207,9 +191,9 @@ python-cache-clean:
 
 .PHONY: fw-build fw-clean fw-debug\
 	pc-emul-build pc-emul-run pc-emul-test pc-emul-clean pc-emul-profile \
-	sim-build sim-run sim-clean sim-test sim-versat-fus \
+	sim-build sim-run sim-clean sim-test sim-debug sim-versat-fus \
 	tester-sim-build tester-sim-run tester-sim-test \
-	fpga-build fpga-run fpga-run-profile fpga-test fpga-clean \
+	fpga-build fpga-run fpga-run-profile fpga-test fpga-debug fpga-clean \
 	tester-fpga-build tester-fpga-run tester-fpga-test \
 	doc-accel-plan doc-accel-plan-clean doc-clean \
 	test-versat-fus \
