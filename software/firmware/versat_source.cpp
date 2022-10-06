@@ -11,7 +11,7 @@ int main(int argc, const char* argv[])
   //instantiate versat 
   Versat versatInst = {};
   Versat* versat = &versatInst;
-  InitVersat(versat,VERSAT_BASE,1); 
+  InitVersat(versat,VERSAT0_BASE,1); 
 
   // Sha specific units
   // Need to RegisterFU, can ignore return value
